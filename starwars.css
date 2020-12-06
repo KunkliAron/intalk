@@ -1,0 +1,12 @@
+body
+{
+    background: black;
+    font: "News Cycle", sans-serif;
+    color: #ff6;
+}
+
+.StarWarsLogo
+{
+  max-width: 50vw;
+  height: auto;
+}
