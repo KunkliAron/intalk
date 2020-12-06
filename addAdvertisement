@@ -1,0 +1,93 @@
+<%-- 
+    Document   : addAdvertisement
+    Created on : Nov 22, 2020, 5:31:47 PM
+    Author     : aronk
+--%>
+<%@ page import="java.util.Vector" %>
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@page import="java.sql.DriverManager"%>
+<%@page import="java.sql.ResultSet"%>
+<%@page import="java.sql.Statement"%>
+<%@page import="java.sql.Connection"%>
+<%@taglib prefix="sql" uri="http://java.sun.com/jsp/jstl/sql"%>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@page session="true" %>
+
+<sql:setDataSource var="hardware" 
+                   driver="org.apache.derby.jdbc.ClientDriver" 
+                   url="jdbc:derby://localhost:1527/project" 
+                   user="adminadmin" 
+                   password="adminadmin" 
+                   scope="application" />
+
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    </head>
+    <body>
+        <c:choose>
+            <c:when test="${param.postAdvertisement.equals('Post Advertisement!')}">
+                <sql:update var="register" dataSource="${hardware}">
+                    INSERT INTO hardware ( manufacturer, hardware, rgb, age, price, useremail)
+                    VALUES ('${param.manufacturer}','${param.hardware}','${param.rgb}','${param.age}',${param.price},'<%=session.getAttribute("userEmail")%>')
+                </sql:update>   
+            </c:when>
+            <c:when test="${(param.updateAdvertisement.equals('Update Advertisement!') && !empty(param.updateHardwareID))}">
+                <sql:query var="exists" dataSource="${hardware}">
+                    SELECT * FROM hardware where hardware_id=${param.updateHardwareID}
+                </sql:query>
+                <c:if test="${exists.rowCount ne 0}">
+                    <sql:update var="update" dataSource="${hardware}">
+                        UPDATE hardware
+                        SET manufacturer = '${param.manufacturer}', 
+                        hardware = '${param.hardware}', 
+                        rgb = '${param.rgb}', 
+                        age = '${param.age}', 
+                        price = ${param.price}
+                        WHERE hardware_id = ${param.updateHardwareID}
+                        AND useremail = '<%=session.getAttribute("userEmail")%>'
+                    </sql:update>   
+                </c:if> 
+            </c:when>
+            <c:when test="${(param.deleteAdvertisement.equals('Delete Advertisement!') && !empty(param.deleteHardwareID))}">
+                <sql:query var="exists" dataSource="${hardware}">
+                    SELECT * FROM hardware WHERE hardware_id=${param.deleteHardwareID}
+                </sql:query>
+                <c:if test="${exists.rowCount ne 0}">
+                    <sql:update var="delete" dataSource="${hardware}">
+                        DELETE FROM hardware 
+                        WHERE (hardware_id = ${param.deleteHardwareID}
+                        AND useremail = '<%=session.getAttribute("userEmail")%>')
+                    </sql:update>  
+                </c:if>
+
+                <% if (session.getAttribute("userEmail").equals("aaa@gmail.com")) {
+                %>
+                <sql:query var="exists2" dataSource="${hardware}">
+                    SELECT * FROM hardware WHERE hardware_id=${param.deleteHardwareID}
+                </sql:query>
+                <c:if test="${exists2.rowCount ne 0}">
+                    <sql:update var="delete" dataSource="${hardware}">
+                        DELETE FROM hardware
+                        WHERE hardware_id = ${param.deleteHardwareID}
+                    </sql:update>
+                </c:if>
+                <% } %> 
+            </c:when>
+            <c:otherwise>         
+            </c:otherwise>
+        </c:choose>
+
+
+        <c:if test="${param.goBack eq 'goBack'}">
+            <% response.sendRedirect("http://localhost:8080/project/navigation.jsp");%> 
+        </c:if>                        
+
+        <c:if test="${param.goBack ne 'goBack'}">
+            <% response.sendRedirect("http://localhost:8080/project/advertisement.jsp");%> 
+        </c:if>  
+
+
+    </body>
+</html>
